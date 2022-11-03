@@ -6,39 +6,82 @@
 #define ROW 9
 #define COLUMN 9
 #define RECORD 500
+#define S 2
 
 int i,j;
+char tempX;
 int selectX,selectY,targetX=5,targetY=5;
 char temp;
 char chessboard[ROW][COLUMN];
 int count;
 char chess[RECORD];
 int bx[RECORD],by[RECORD],ax[RECORD],ay[RECORD];
+extern char *optarg;
+extern int optind,opterr,optopt;
+File *fptr;
+
 void chessSetup();
 void chessprint();
 void chessinput();
 void inputcheck();
-int chessmove();
+void input_sl_again();
+void input_tg_again();
+void roundjudge();
+void chessmove();
 int moverule();
 int movecheck();
 void chesseat();
-void chessSave();
+char winlose();
+void chessregret();
+void
 
-void main(){
-    chessSetup();
+
+void main(int argc, char *argv[]){
+	chessSetup();
     for(count=0;count<RECORD;count++){
     	system("clear");
     	chessprint();
-    	chessinput();
-    	chessSave();
-    	chessmove();
-    }
+   		if(winlose()==3 || winlose()==0){
+   			chessinput();
+ 			chessmove();
+   		}
+   		else if(winlose()==1){ 
+  			printf("The winner is player Y ! \n");
+   			break;
+   		}
+   		else if(winlose()==2){ 
+   			printf("The winner is player X ! \n");
+   			break;	
+   		}
+   	}
 }
 
-//
-void chessSave(){
-	bx[count]=selectX;by[count]=selectY;ax[count]=targetX;ay[count]=targetY;
-	chess[count]=chessboard[targetY][targetX];
+//back to the previous step 
+void chessregret(){
+	while(tempX == '0' && count>0){
+		count--;
+		chessboard[by[count]][bx[count]]=chessboard[ay[count]][ax[count]];
+		chessboard[ay[count]][ax[count]]=chess[count];
+		system("clear");
+		chessprint();
+		printf("Please enter the X coordinate of the chess : ");
+		scanf("%c",&tempX);
+		getchar();
+		selectX=9-(tempX-48);
+	}
+}
+
+//decide if the game is over
+char winlose(){
+	int win=0;
+	
+	for(i=0;i<9;i++){
+		for(j=0;j<9;j++){
+			if(chessboard[i][j]=='K') win++;
+			else if(chessboard[i][j]=='k') win+=2;
+		}
+	}
+	return win;
 }
 
 //eat the chess
@@ -71,9 +114,12 @@ void chesseat(){
 		    break;
 		default:
 			printf("This is your chess ! \n");
+			sleep(S);
+			system("clear");
 			chessinput();
 			break;
 		}
+		break;
 	case 'l':
 	case 'n':
 	case 's':
@@ -100,10 +146,14 @@ void chesseat(){
 			chessboard[selectY][selectX]=temp;
 			break;
 		default:
-			printf("This is your chess ! ");
+			printf("This is your chess ! \n");
+			sleep(S);
+			system("clear");
+			chessprint();
 			chessinput();
 			break;
 		}
+		break;
 	}
 }
 
@@ -179,125 +229,197 @@ int movecheck(){
 
 //the rule of the movement
 int moverule(){
-	int true=0;
+	int crt=0;
 	switch(chessboard[selectY][selectX]){
 		case 'L':
-			if((selectX == targetX) && (selectY < targetY)) true=1;
+			if((selectX == targetX) && (selectY < targetY)) crt=1;
 			break;
 		case 'l':
-			if((selectX == targetX) && (selectY > targetY)) true=1;
+			if((selectX == targetX) && (selectY > targetY)) crt=1;
 			break;
 		case 'N':
 			if(targetX == selectX+1 || targetX == selectX-1)
-				if(targetY == selectY+2) true=1;
+				if(targetY == selectY+2) crt=1;
 			break;
 		case 'n':
 			if(targetX == selectX+1 || targetX == selectX-1)
-				if(targetY == selectY-2) true=1;
+				if(targetY == selectY-2) crt=1;
 			break;
 		case 'S':
-			if((targetY == selectY+1) && (targetX == selectX || targetX == selectX+1 || targetX == selectX-1)) true=1;
-			else if((targetY == selectY-1) && (targetX == (selectX+1 || select-1))) true=1;
+			if((targetY == selectY+1) && (targetX == selectX || targetX == selectX+1 || targetX == selectX-1)) crt=1;
+			else if((targetY == selectY-1) && (targetX == selectX+1 || targetX == selectX-1)) crt=1;
 			break;
 		case 's':
-			if((targetY == selectY-1) && (targetX == selectX || targetX == selectX+1 || targetX == selectX-1)) true=1;
-			else if((targetY == selectY+1) && (targetX == (selectX+1 || select-1))) true=1;
+			if((targetY == selectY-1) && (targetX == selectX || targetX == selectX+1 || targetX == selectX-1)) crt=1;
+			else if((targetY == selectY+1) && (targetX == selectX+1 || targetX == selectX-1)) crt=1;
 			break;
 		case 'G':
 			if(targetY == selectY || targetY == selectY+1 || targetY == selectY-1){
 				if(targetX == selectX || targetX == selectX+1 || targetX == selectX-1){
-					if((targetY == selectY-1) && (targetX == selectX-1)) true=0;
-					else if((targetY == selectY-1) && (targetX == selectX+1)) true=0;
-					else true=1;
+					if((targetY == selectY-1) && (targetX == selectX-1)) crt=0;
+					else if((targetY == selectY-1) && (targetX == selectX+1)) crt=0;
+					else crt=1;
 				}
 			}
 			break;
 		case 'g':
 			if(targetY == selectY || targetY == selectY+1 || targetY == selectY-1){
 				if(targetX == selectX || targetX == selectX+1 || targetX == selectX-1){
-					if((targetY == selectY+1) && (targetX == selectX-1)) true=0;
-					else if((targetY == selectY+1) && (targetX == selectX+1)) true=0;
-					else true=1;
+					if((targetY == selectY+1) && (targetX == selectX-1)) crt=0;
+					else if((targetY == selectY+1) && (targetX == selectX+1)) crt=0;
+					else crt=1;
 				}
 			}
 			break;
 		case 'K':
 		case 'k':
 			if(targetY == selectY || targetY == selectY+1 || targetY == selectY-1)
-				if(targetX == selectX || targetX == selectX+1 || targetX == selectX-1) true=1;
+				if(targetX == selectX || targetX == selectX+1 || targetX == selectX-1) crt=1;
 			break;
 		case 'P':
 			if(targetY == selectY+1)
-				if(targetX == targetX) true=1;
+				if(targetX == selectX) crt=1;
 			break;
 		case 'p':
 			if(targetY == selectY-1)
-				if(targetX == targetX) true=1;
+				if(targetX == selectX) crt=1;
 			break;
 		case 'R':
 		case 'r':
-			if((targetY == selectY) || (selectX == targetX)) true=1;
+			if((targetY == selectY) || (selectX == targetX)) crt=1;
 			break;
 		case 'B':
 		case 'b':
-			if(abs(targetY-selectY) == abs(targetX-selectX)) true=1;
+			if(abs(targetY-selectY) == abs(targetX-selectX)) crt=1;
 			break;
 	}
-	return true;
+	return crt;
 }
 
-//move the chess
-int chessmove(){
+//move the chess and save
+void chessmove(){
 	int mr = moverule();
 	int mc = movecheck();
+	
 	if(mr==1 && mc==0){
+		bx[count]=selectX;by[count]=selectY;ax[count]=targetX;ay[count]=targetY;
+		chess[count]=chessboard[targetY][targetX];
 		chesseat();
-		printf("%c",chessboard[targetY][targetX]);
 	}
 	else if(mr==0 || mc==1){
-		printf("Wrong movement!\n");
+		printf("Wrong movement! \n");
+		sleep(S);
+		system("clear");
+		chessprint();
 		chessinput();
 		chessmove();	
+	}
+}
+
+//decide if the player move the other player's chess 
+void roundjudge(){
+	while(count%2==0){
+		switch(chessboard[selectY][selectX]){
+		case 'L':
+		case 'N':
+		case 'S':
+		case 'G':
+		case 'K':
+		case 'R':
+		case 'B':
+		case 'P':
+			printf("This is not your chess ! \n");
+			input_sl_again();
+			break;
+		default:
+			return;
+		}
+	}
+	while(count%2==1){
+		switch(chessboard[selectY][selectX]){
+		case 'l':
+		case 'n':
+		case 's':
+		case 'g':
+		case 'k':
+		case 'r':
+		case 'b':
+		case 'p':
+			printf("This is not your chess ! \n");
+			input_sl_again();
+			break;
+		default:
+			return;
+		}
 	}
 }
 
 //check the input
 void inputcheck(){
 	while(selectX<0 || selectX>8 || selectY<0 || selectY>8){
-		printf("Beyond the border of the chessboard !\n");
-		printf("Please enter the coordinate of the chess again: ");
-		scanf("%d%d",&selectX,&selectY);
-		selectX=9-selectX;
-		selectY=selectY-1;
+		printf("Beyond the border of the chessboard ! \n");
+		input_sl_again();
+		roundjudge();
+		inputcheck();
 	}
 	while(chessboard[selectY][selectX] == 't'){
-		printf("There is no chess !\n");
-		printf("Please enter the coordinate of the chess again: ");
-		scanf("%d%d",&selectX,&selectY);
-		selectX=9-selectX;
-		selectY=selectY-1;
+		printf("There is no chess ! \n");
+		input_sl_again();
+		roundjudge();
 		inputcheck();
 	}
 	while(targetX<0 || targetX>8 || targetY<0 || targetY>8){
-		printf("Beyond the border of the chessboard !\n");
-		printf("Please enter the coordinate of the target again : ");
-		scanf("%d%d",&targetX,&targetY);
-		targetX=9-targetX;
-		targetY=targetY-1;
+		printf("Beyond the border of the chessboard ! \n");
+		input_tg_again();
 	}
+}
+
+//input select again
+void input_sl_again(){
+	sleep(S);
+	system("clear");
+	chessprint();
+	getchar();
+	printf("Please enter the X coordinate of the chess again: ");
+	scanf("%c",&tempX);
+	getchar();
+	selectX=9-(tempX-48);
+	printf("Please enter the Y coordinate of the chess again: ");
+	scanf("%d",&selectY);
+	selectY=selectY-1;	
+}
+
+//input target again
+void input_tg_again(){
+	sleep(S);
+	printf("Please enter the X coordinate of the target again : ");
+	scanf("%d",&targetX);
+	printf("Please enter the Y coordinate of the target again : ");
+	scanf("%d",&targetY);
+	targetX=9-targetX;
+	targetY=targetY-1;
 }
 
 //input the coordinate of chess and check
 void chessinput(){
-	printf("Please enter the coordinate of the chess : ");
-	scanf("%d%d",&selectX,&selectY);
-	selectX=9-selectX;
+	printf("Please enter the X coordinate of the chess : ");
+	scanf("%c",&tempX);
+	getchar();
+	chessregret();
+	selectX=9-(tempX-48);
+	printf("Please enter the Y coordinate of the chess : ");
+	scanf("%d",&selectY);
 	selectY=selectY-1;
+	roundjudge();
 	inputcheck();
-	printf("Please enter the coordinate of the target : ");
-	scanf("%d%d",&targetX,&targetY);
+	printf("Please enter the X coordinate of the target : ");
+	scanf("%d",&targetX);
 	targetX=9-targetX;
+	printf("Please enter the Y coordinate of the target : ");
+	scanf("%d",&targetY);
 	targetY=targetY-1;
+	getchar();
+	inputcheck();
 }
 
   //print the chessboard
@@ -307,52 +429,52 @@ void chessprint(){
 		for(j=0;j<9;j++){
 			switch(chessboard[i][j]){
 			case 'L':
-				printf("\033[34m香\033[0m ");
-				break;
-			case 'l':
 				printf("\033[31m香\033[0m ");
 				break;
-			case 'N':
-				printf("\033[34m桂\033[0m ");
+			case 'l':
+				printf("\033[34m香\033[0m ");
 				break;
-			case 'n':
+			case 'N':
 				printf("\033[31m桂\033[0m ");
 				break;
-			case 'S':
-				printf("\033[34m銀\033[0m ");
+			case 'n':
+				printf("\033[34m桂\033[0m ");
 				break;
-			case 's':
+			case 'S':
 				printf("\033[31m銀\033[0m ");
 				break;
-			case 'G':
-				printf("\033[34m金\033[0m ");
+			case 's':
+				printf("\033[34m銀\033[0m ");
 				break;
-			case 'g':
+			case 'G':
 				printf("\033[31m金\033[0m ");
 				break;
-			case 'K':
-				printf("\033[34m王\033[0m ");
+			case 'g':
+				printf("\033[34m金\033[0m ");
 				break;
-			case 'k':
+			case 'K':
 				printf("\033[31m王\033[0m ");
 				break;
-			case 'B':
-				printf("\033[34m角\033[0m ");
+			case 'k':
+				printf("\033[34m王\033[0m ");
 				break;
-			case 'b':
+			case 'B':
 				printf("\033[31m角\033[0m ");
 				break;
-			case 'R':
-				printf("\033[34m飛\033[0m ");
+			case 'b':
+				printf("\033[34m角\033[0m ");
 				break;
-			case 'r':
+			case 'R':
 				printf("\033[31m飛\033[0m ");
 				break;
+			case 'r':
+				printf("\033[34m飛\033[0m ");
+				break;
 			case 'P':
-				printf("\033[34m步\033[0m ");
+				printf("\033[31m步\033[0m ");
 				break;
 			case 'p':
-				printf("\033[31m步\033[0m ");
+				printf("\033[34m步\033[0m ");
 				break;
 			case 't':
 				printf("﹒ ");
@@ -390,6 +512,8 @@ void chessprint(){
 		}
 		printf("\n");
 	}
+	if(count%2==0) printf("It's player X's turn \n");
+	else if(count%2==1) printf("It's player Y's turn \n");
 }
 
   //set up the chess board
