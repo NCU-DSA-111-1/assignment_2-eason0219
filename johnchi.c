@@ -1,39 +1,4 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include<unistd.h>
-
-#define ROW 9
-#define COLUMN 9
-#define RECORD 500
-#define S 2
-
-int i,j;
-char tempX;
-int selectX,selectY,targetX=5,targetY=5;
-char temp;
-char chessboard[ROW][COLUMN];
-int count;
-char chess[RECORD];
-int bx[RECORD],by[RECORD],ax[RECORD],ay[RECORD];
-FILE *fptr;
-extern char *optarg;
-extern int optind,opterr,optopt;
-
-void chessSetup();
-void chessprint();
-void chessinput();
-void inputcheck();
-void input_sl_again();
-void input_tg_again();
-void roundjudge();
-void chessmove();
-int moverule();
-int movecheck();
-void chesseat();
-int winlose();
-void regret_save();
-void roundmove();
+#include "johnchi.h"
 
 
 void main(int argc, char *argv[]){
@@ -150,7 +115,7 @@ void regret_save(){
 			chessboard[ay[count]][ax[count]]=chess[count];
 			system("clear");
 			chessprint();
-			printf("Please enter the X coordinate of the chess : ");
+			printf("Please enter the  coordinate of the chess:");
 			scanf("%c",&tempX);
 			getchar();
 			selectX=9-(tempX-48);
@@ -167,10 +132,10 @@ void regret_save(){
 		sleep(S);
 		system("clear");
 		chessprint();
-		printf("Please enter the X coordinate of the chess : ");
+		printf("Please enter the  coordinate of the chess:");
 		scanf("%c",&tempX);
 		getchar();
-		selectX=9-(tempX-48);
+		selectX=tempX-48;
 		regret_save();
 		break;
 	case '1':
@@ -191,7 +156,7 @@ void regret_save(){
 		printf("Please enter the X coordinate of the chess again : ");
 		scanf("%c",&tempX);
 		getchar();
-		selectX=9-(tempX-48);
+		selectX=tempX-48;
 		regret_save();
 		break;
 	}
@@ -510,46 +475,67 @@ void input_sl_again(){
 	scanf("%c",&tempX);
 	getchar();
 	regret_save();
-	selectX=9-(tempX-48);
-	printf("Please enter the Y coordinate of the chess again: ");
-	scanf("%d",&selectY);
-	selectY=selectY-1;	
+	selectX=tempX-48;
+	if(selectX/10==0){
+		scanf("%d",&selectY);
+		selectY=selectY-1;
+		selectX=9-selectX;
+	}
+	else{
+		selectY=selectX%10-1;
+		selectX=9-selectX/10;
+	}
 }
 
 //input target again
 void input_tg_again(){
 	sleep(S);
-	printf("Please enter the X coordinate of the target again : ");
+	printf("Please enter the X coordinate of the target again: ");
 	scanf("%d",&targetX);
-	printf("Please enter the Y coordinate of the target again : ");
-	scanf("%d",&targetY);
-	targetX=9-targetX;
-	targetY=targetY-1;
+	if(targetX/10==0){
+		scanf("%d",&targetY);
+		targetY=targetY-1;
+		targetX=9-targetX;
+	}
+	else{
+		targetY=targetX%10-1;
+		targetX=9-targetX/10;
+	}
 }
 
 //input the coordinate of chess and check
 void chessinput(){
-	printf("Please enter the X coordinate of the chess : ");
+	printf("Please enter the  coordinate of the chess:");
 	scanf("%c",&tempX);
-	getchar();
 	regret_save();
-	selectX=9-(tempX-48);
-	printf("Please enter the Y coordinate of the chess : ");
-	scanf("%d",&selectY);
-	selectY=selectY-1;
+	selectX=tempX-48;
+	if(selectX/10==0){
+		scanf("%d",&selectY);
+		selectY=selectY-1;
+		selectX=9-selectX;
+	}
+	else{
+		selectY=selectX%10-1;
+		selectX=9-selectX/10;
+	}
 	roundjudge();
 	inputcheck();
-	printf("Please enter the X coordinate of the target : ");
+	printf("Please enter the  coordinate of the target : ");
 	scanf("%d",&targetX);
-	targetX=9-targetX;
-	printf("Please enter the Y coordinate of the target : ");
-	scanf("%d",&targetY);
-	targetY=targetY-1;
+	if(targetX/10==0){
+		scanf("%d",&targetY);
+		targetY=targetY-1;
+		targetX=9-targetX;
+	}
+	else{
+		targetY=targetX%10-1;
+		targetX=9-targetX/10;
+	}
 	getchar();
 	inputcheck();
 }
 
-  //print the chessboard
+//print the chessboard
 void chessprint(){
 	printf("９ ８ ７ ６ ５ ４ ３ ２ １\n");
 	for(i=0;i<9;i++){
