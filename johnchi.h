@@ -11,14 +11,21 @@
 #define RECORD 500
 #define S 2
 
+struct match{
+    int bx,by,ax,ay;
+    char chess;
+    struct match *next , *pre;
+};
+typedef struct match Match;
+Match *first,*current,*previous,*space;
 int i,j;
 char tempX;
 int selectX,selectY,targetX=5,targetY=5;
 char temp;
 char chessboard[ROW][COLUMN];
 int count;
-char chess[RECORD];
-int bx[RECORD],by[RECORD],ax[RECORD],ay[RECORD];
+//char chess[RECORD];
+//int bx[RECORD],by[RECORD],ax[RECORD],ay[RECORD];
 FILE *fptr;
 extern char *optarg;
 extern int optind,opterr,optopt;

@@ -64,8 +64,19 @@ void roundmove(){
 	count=0;
 
 	for(x=0;!feof(fptr);x++){
-		fscanf(fptr,"%d %d %d %d %c",&bx[x],&by[x],&ax[x],&ay[x],&chess[x]);
+		current=(Match*) malloc(sizeof(Match));
+		fscanf(fptr,"%d %d %d %d %c",&current->bx,&current->by,&current->ax,&current->ay,&current->chess);
+		if(x==0) {
+			first=current;
+		}
+		else {
+			previous->next=current;
+		}
+		current->next=NULL;
+		current->pre=previous;
+		previous=current;
 	} // load the chess in the file
+	current=first;
 	while(ins!='e'){
 		chessprint();
 		printf("Enter 'f' to go next or 'b' to go back : ");
@@ -78,9 +89,10 @@ void roundmove(){
 				sleep(S);
 			}
 			else{
-				chessboard[ay[count]][ax[count]]=chessboard[by[count]][bx[count]];
-				chessboard[by[count]][bx[count]]='t';
+				chessboard[current->ay][current->ax]=chessboard[current->by][current->bx];
+				chessboard[current->by][current->bx]='t';
 				count++;
+				current=current->next;
 			}
 			break;
 		case 'b':
@@ -90,8 +102,9 @@ void roundmove(){
 			}
 			else{
 				count--;
-				chessboard[by[count]][bx[count]]=chessboard[ay[count]][ax[count]];
-				chessboard[ay[count]][ax[count]]=chess[count];
+				chessboard[current->by][current->bx]=chessboard[current->ay][current->ax];
+				chessboard[current->ay][current->ax]=current->chess;
+				current=current->pre;
 			}
 			break;
 		case 'e':
@@ -111,21 +124,25 @@ void regret_save(){
 	case '0':
 		if(count>0){
 			count--;
-			chessboard[by[count]][bx[count]]=chessboard[ay[count]][ax[count]];
-			chessboard[ay[count]][ax[count]]=chess[count];
+			chessboard[current->by][current->bx]=chessboard[current->ay][current->ax];
+			chessboard[current->ay][current->ax]=current->chess;
+			free(current);
+			current=previous;
+			current->next=NULL;
+			previous=previous->pre;
 			system("clear");
 			chessprint();
 			printf("Please enter the  coordinate of the chess:");
 			scanf("%c",&tempX);
 			getchar();
-			selectX=9-(tempX-48);
-			regret_save();
 		}
 		break;
 	case 's':
 	case 'S':
+		current=first;
 		for(i=0;i<count;i++){
-			fprintf(fptr,"%d %d %d %d %c\n",bx[i],by[i],ax[i],ay[i],chess[i]);
+			fprintf(fptr,"%d %d %d %d %c\n",current->bx,current->by,current->ax,current->ay,current->chess);
+			current=current->next;
 		}
 		fflush(fptr);
 		printf("Save the game succesfully ! \n");
@@ -135,8 +152,6 @@ void regret_save(){
 		printf("Please enter the  coordinate of the chess:");
 		scanf("%c",&tempX);
 		getchar();
-		selectX=tempX-48;
-		regret_save();
 		break;
 	case '1':
 	case '2':
@@ -153,13 +168,12 @@ void regret_save(){
 		sleep(S);
 		system("clear");
 		chessprint();
-		printf("Please enter the X coordinate of the chess again : ");
+		printf("Please enter the coordinate of the chess again : ");
 		scanf("%c",&tempX);
 		getchar();
-		selectX=tempX-48;
-		regret_save();
 		break;
 	}
+	regret_save();
 }
 
 //decide if the game is over
@@ -393,8 +407,18 @@ void chessmove(){
 	int mc = movecheck();
 	
 	if(mr==1 && mc==0){
-		bx[count]=selectX;by[count]=selectY;ax[count]=targetX;ay[count]=targetY;
-		chess[count]=chessboard[targetY][targetX];
+		current=(Match*) malloc(sizeof(Match));
+		current->bx=selectX;current->by=selectY;current->ax=targetX;current->ay=targetY;
+		current->chess=chessboard[targetY][targetX];
+		if(count==0){
+			first=current;
+		}
+		else{
+			previous->next=current;
+		}
+		current->next=NULL;
+		current->pre=previous;
+		previous=current;
 		chesseat();
 	}
 	else if(mr==0 || mc==1){
@@ -447,7 +471,7 @@ void roundjudge(){
 
 //check the input
 void inputcheck(){
-	while(selectX<0 || selectX>8 || selectY<0 || selectY>8){
+	while(selectX<1 || selectX>8 || selectY<0 || selectY>8){
 		printf("Beyond the border of the chessboard ! \n");
 		input_sl_again();
 		roundjudge();
@@ -471,9 +495,8 @@ void input_sl_again(){
 	system("clear");
 	chessprint();
 	getchar();
-	printf("Please enter the X coordinate of the chess again: ");
+	printf("Please enter the coordinate of the chess again: ");
 	scanf("%c",&tempX);
-	getchar();
 	regret_save();
 	selectX=tempX-48;
 	if(selectX/10==0){
@@ -490,7 +513,7 @@ void input_sl_again(){
 //input target again
 void input_tg_again(){
 	sleep(S);
-	printf("Please enter the X coordinate of the target again: ");
+	printf("Please enter the coordinate of the target again: ");
 	scanf("%d",&targetX);
 	if(targetX/10==0){
 		scanf("%d",&targetY);
