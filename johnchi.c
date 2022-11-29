@@ -135,6 +135,7 @@ void regret_save(){
 			printf("Please enter the  coordinate of the chess:");
 			scanf("%c",&tempX);
 			getchar();
+			regret_save();
 		}
 		break;
 	case 's':
@@ -152,6 +153,7 @@ void regret_save(){
 		printf("Please enter the  coordinate of the chess:");
 		scanf("%c",&tempX);
 		getchar();
+		regret_save();
 		break;
 	case '1':
 	case '2':
@@ -171,9 +173,9 @@ void regret_save(){
 		printf("Please enter the coordinate of the chess again : ");
 		scanf("%c",&tempX);
 		getchar();
+		regret_save();
 		break;
 	}
-	regret_save();
 }
 
 //decide if the game is over
