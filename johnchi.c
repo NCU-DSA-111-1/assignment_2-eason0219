@@ -167,6 +167,7 @@ void regret_save(){
 		break;
 	default:
 		printf("Not support the option ! \n");
+		printf("%c",tempX);
 		sleep(S);
 		system("clear");
 		chessprint();
