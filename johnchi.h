@@ -9,7 +9,7 @@
 #define ROW 9
 #define COLUMN 9
 #define RECORD 500
-#define S 2
+#define S 1
 
 struct match{
     int bx,by,ax,ay;
@@ -24,8 +24,6 @@ int selectX,selectY,targetX=5,targetY=5;
 char temp;
 char chessboard[ROW][COLUMN];
 int count;
-//char chess[RECORD];
-//int bx[RECORD],by[RECORD],ax[RECORD],ay[RECORD];
 FILE *fptr;
 extern char *optarg;
 extern int optind,opterr,optopt;

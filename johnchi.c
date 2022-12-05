@@ -122,21 +122,35 @@ void roundmove(){
 void regret_save(){
 	switch(tempX){
 	case '0':
-		if(count>0){
+		if(count>1){
 			count--;
-			chessboard[current->by][current->bx]=chessboard[current->ay][current->ax];
-			chessboard[current->ay][current->ax]=current->chess;
-			free(current);
-			current=previous;
-			current->next=NULL;
-			previous=previous->pre;
-			system("clear");
-			chessprint();
-			printf("Please enter the  coordinate of the chess:");
-			scanf("%c",&tempX);
-			getchar();
-			regret_save();
+			chessboard[current->by][current->bx] = chessboard[current->ay][current->ax];
+			chessboard[current->ay][current->ax] = current->chess;
+			space = current;
+			current = previous->pre;
+			previous = previous->pre;
+			previous->next = NULL;
+			free(space);
 		}
+		else if(count==1){
+			count--;
+			chessboard[current->by][current->bx] = chessboard[current->ay][current->ax];
+			chessboard[current->ay][current->ax] = current->chess;
+			space = current;
+			current->next = NULL;
+			previous = current->pre;
+			free(space);
+		}
+		else{
+			printf("You haven't move a chess ! \n");
+			sleep(S);
+		}
+		system("clear");
+		chessprint();
+		printf("Please enter the coordinate of the chess:");
+		getchar();
+		scanf("%c",&tempX);
+		regret_save();
 		break;
 	case 's':
 	case 'S':
@@ -150,9 +164,10 @@ void regret_save(){
 		sleep(S);
 		system("clear");
 		chessprint();
-		printf("Please enter the  coordinate of the chess:");
-		scanf("%c",&tempX);
+		printf("Please enter the coordinate of the chess:");
 		getchar();
+		scanf("%c",&tempX);
+		//getchar();
 		regret_save();
 		break;
 	case '1':
@@ -167,13 +182,14 @@ void regret_save(){
 		break;
 	default:
 		printf("Not support the option ! \n");
-		printf("%c",tempX);
+		printf("tempX=%c\n",tempX);
 		sleep(S);
 		system("clear");
 		chessprint();
 		printf("Please enter the coordinate of the chess again : ");
-		scanf("%c",&tempX);
 		getchar();
+		scanf("%c",&tempX);
+		// getchar();
 		regret_save();
 		break;
 	}
