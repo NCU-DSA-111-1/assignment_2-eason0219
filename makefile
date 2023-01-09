@@ -11,7 +11,7 @@ timer.o: src/timer.c
 run:
 	./bin/johnchi -n -s new_game.txt
 
-return:
+review:
 	./bin/johnchi -l new_game.txt
 clean:
 	rm *.o main
