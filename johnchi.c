@@ -31,20 +31,34 @@ void main(int argc, char *argv[]){
 		}
 	}
 	if(status==1){
+		count=0;
 		chessSetup();
-		for(count=0;count<RECORD;count++){
-			system("clear");
-			chessprint();
+		while(count<RECORD){
 			if(winlose()==3 || winlose()==0){
+				timer();
 				chessinput();
-				chessmove();
+				while(flag==1 || flag==2 || flag==3){
+					timer();
+					chessinput();
+				}
+				count++;
 			}
 			else if(winlose()==1){ 
+				system("clear");
+				flag=-1;
+				chessprint();
 				printf("The winner is player Y ! \n");
+				printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
+				printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
 				break;
 			}
 			else if(winlose()==2){ 
+				system("clear");
+				flag=-1;
+				chessprint();
 				printf("The winner is player X ! \n");
+				printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
+				printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
 				break;	
 			}
 		}
@@ -145,12 +159,9 @@ void regret_save(){
 			printf("You haven't move a chess ! \n");
 			sleep(S);
 		}
-		system("clear");
-		chessprint();
-		printf("Please enter the coordinate of the chess:");
 		getchar();
-		scanf("%c",&tempX);
-		regret_save();
+		count--;
+		flag=0;
 		break;
 	case 's':
 	case 'S':
@@ -162,36 +173,23 @@ void regret_save(){
 		fflush(fptr);
 		printf("Save the game succesfully ! \n");
 		sleep(S);
-		system("clear");
-		chessprint();
-		printf("Please enter the coordinate of the chess:");
-		getchar();
-		scanf("%c",&tempX);
-		//getchar();
-		regret_save();
+		count--;
 		break;
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	
-		break;
-	default:
-		printf("Not support the option ! \n");
-		printf("tempX=%c\n",tempX);
-		sleep(S);
-		system("clear");
-		chessprint();
-		printf("Please enter the coordinate of the chess again : ");
-		getchar();
-		scanf("%c",&tempX);
-		// getchar();
-		regret_save();
-		break;
+	// case '1':
+	// case '2':
+	// case '3':
+	// case '4':
+	// case '5':
+	// case '6':
+	// case '7':
+	// case '8':
+	// case '9':	
+	// 	break;
+	// default:
+	// 	printf("Not support the option ! \n");
+	// 	sleep(S);
+	// 	flag=0;
+	// 	break;
 	}
 }
 
@@ -239,8 +237,8 @@ void chesseat(){
 				default:
 					printf("This is your chess ! \n");
 					sleep(S);
-					system("clear");
-					chessinput();
+					flag=2;
+					count--;
 					break;
 		}
 		break;
@@ -272,9 +270,8 @@ void chesseat(){
 				default:
 					printf("This is your chess ! \n");
 					sleep(S);
-					system("clear");
-					chessprint();
-					chessinput();
+					flag=2;
+					count--;
 					break;
 			}
 			break;
@@ -443,16 +440,13 @@ void chessmove(){
 	else if(mr==0 || mc==1){
 		printf("Wrong movement! \n");
 		sleep(S);
-		system("clear");
-		chessprint();
-		chessinput();
-		chessmove();	
+		flag=2;
 	}
 }
 
 //decide if the player move the other player's chess 
 void roundjudge(){
-	while(count%2==0){
+	if(count%2==0){
 		switch(chessboard[selectY][selectX]){
 			case 'L':
 			case 'N':
@@ -463,13 +457,14 @@ void roundjudge(){
 			case 'B':
 			case 'P':
 				printf("This is not your chess ! \n");
-				input_sl_again();
+				sleep(S);
+				flag=2;
 				break;
 			default:
 				return;
 		}
 	}
-	while(count%2==1){
+	else if(count%2==1){
 		switch(chessboard[selectY][selectX]){
 			case 'l':
 			case 'n':
@@ -480,7 +475,8 @@ void roundjudge(){
 			case 'b':
 			case 'p':
 				printf("This is not your chess ! \n");
-				input_sl_again();
+				sleep(S);
+				flag=2;
 				break;
 			default:
 				return;
@@ -490,91 +486,82 @@ void roundjudge(){
 
 //check the input
 void inputcheck(){
-	while(selectX<1 || selectX>8 || selectY<0 || selectY>8){
-		printf("Beyond the border of the chessboard ! \n");
-		input_sl_again();
-		roundjudge();
-		inputcheck();
-	}
-	while(chessboard[selectY][selectX] == 't'){
+	if(chessboard[selectY][selectX] == 't'){
 		printf("There is no chess ! \n");
-		input_sl_again();
-		roundjudge();
-		inputcheck();
+		sleep(S);
+		flag=2;
 	}
-	while(targetX<0 || targetX>8 || targetY<0 || targetY>8){
+	else if((flag==1 || flag==3) && (targetX<0 || targetX>8 || targetY<0 || targetY>8)){
 		printf("Beyond the border of the chessboard ! \n");
-		input_tg_again();
+		sleep(S);
+		flag=3;
+	}
+	else if(selectX>=0 && selectX<=8 && selectY>=0 && selectY<=8){
+		return;
+	}
+	else if(selectX<0 || selectX>8 || selectY<0 || selectY>8){
+		printf("Beyond the border of the chessboard ! \n");
+		sleep(S);
+		flag=2;
+	}
+	else{
+		printf("Not support the option ! \n");
+		sleep(S);
+		flag=0;
 	}
 }
 
-//input select again
-void input_sl_again(){
-	sleep(S);
-	system("clear");
-	chessprint();
-	getchar();
-	printf("Please enter the coordinate of the chess again: ");
-	scanf("%c",&tempX);
-	regret_save();
-	selectX=tempX-48;
-	if(selectX/10==0){
-		scanf("%d",&selectY);
-		selectY=selectY-1;
-		selectX=9-selectX;
-	}
-	else{
-		selectY=selectX%10-1;
-		selectX=9-selectX/10;
-	}
-}
-
-//input target again
-void input_tg_again(){
-	sleep(S);
-	printf("Please enter the coordinate of the target again: ");
-	scanf("%d",&targetX);
-	if(targetX/10==0){
-		scanf("%d",&targetY);
-		targetY=targetY-1;
-		targetX=9-targetX;
-	}
-	else{
-		targetY=targetX%10-1;
-		targetX=9-targetX/10;
-	}
-}
 
 //input the coordinate of chess and check
 void chessinput(){
-	printf("Please enter the  coordinate of the chess:");
-	scanf("%c",&tempX);
-	regret_save();
-	selectX=tempX-48;
-	if(selectX/10==0){
-		scanf("%d",&selectY);
-		selectY=selectY-1;
-		selectX=9-selectX;
+	if(flag==0 || flag==2){
+		scanf("%c",&tempX);
+		regret_save();
+		selectX=tempX-48;
+		if(tempX=='0')	return;
+		if(selectX/10==0){
+			scanf("%d",&selectY);
+			selectY=selectY-1;
+			selectX=9-selectX;
+		}
+		else{
+			selectY=selectX%10-1;
+			selectX=9-selectX/10;
+		}
+		flag=1;
+		roundjudge();
+		inputcheck();
 	}
-	else{
-		selectY=selectX%10-1;
-		selectX=9-selectX/10;
+	else if(flag==1){
+		scanf("%d",&targetX);
+		if(targetX/10==0){
+			scanf("%d",&targetY);
+			targetY=targetY-1;
+			targetX=9-targetX;
+		}
+		else{
+			targetY=targetX%10-1;
+			targetX=9-targetX/10;
+		}
+		flag=0;
+		inputcheck();
+		chessmove();
 	}
-	roundjudge();
-	inputcheck();
-	printf("Please enter the  coordinate of the target : ");
-	scanf("%d",&targetX);
-	if(targetX/10==0){
-		scanf("%d",&targetY);
-		targetY=targetY-1;
-		targetX=9-targetX;
+	else if(flag==3){
+		sleep(S);
+		scanf("%d",&targetX);
+		if(targetX/10==0){
+			scanf("%d",&targetY);
+			targetY=targetY-1;
+			targetX=9-targetX;
+		}
+		else{
+			targetY=targetX%10-1;
+			targetX=9-targetX/10;
+		}
+		inputcheck();
+		chessmove();
 	}
-	else{
-		targetY=targetX%10-1;
-		targetX=9-targetX/10;
-	}
-	getchar();
-	inputcheck();
 }
 
 //print the chessboard
@@ -667,10 +654,19 @@ void chessprint(){
 		}
 		printf("\n");
 	}
-	if(count%2==0) printf("It's player X's turn \n");
-	else if(count%2==1) printf("It's player Y's turn \n");
+	if(count%2==0) printf("It's playerX's turn \n");
+	else if(count%2==1) printf("It's playerY's turn \n");
+	if(flag==0)	printf("Please enter the  coordinate of the chess: ");
+	else if(flag==1){
+		printf("The chess you select: %d %d\n",9-selectX,selectY+1);
+		printf("Please enter the  coordinate of the target: ");
+	}
+	else if(flag==2) printf("Please enter the coordinate of the chess again: ");
+	else if(flag==3){
+		printf("The chess you select: %d %d\n",9-selectX,selectY+1);
+		printf("Please enter the coordinate of the target again: ");
+	}
 }
-
   //set up the chess board
 void chessSetup(){
 	for(i=0;i<9;i++){
@@ -781,4 +777,55 @@ void chessSetup(){
 		}
 	}
     
+}
+
+
+
+
+static void io_cb(EV_P_ ev_io *w, int revents)
+{
+    if(count%2==0){
+        tx=tx+(tx2-tx1);
+        tx1=tx;
+    }
+    else if(count%2==1){
+        ty=ty+(ty2-ty1); 
+        ty1=ty;
+    }
+	ev_io_stop(EV_A_ w);
+	ev_timer_stop(loop, &time_watcher);
+	ev_break(loop, EVBREAK_ALL);
+}
+static void timer_cb(EV_P_ ev_timer *w, int revents)
+{
+	if(count%2==0){
+		tx2 = time(NULL);
+		system("clear");
+		printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
+		printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
+		fflush(stdout);
+	}
+	else if(count%2==1){
+		ty2 = time(NULL);
+		system("clear");
+		printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
+		printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
+		fflush(stdout);
+	}
+	chessprint();
+	fflush(stdout);
+}
+
+void timer()
+{
+    tx1 = time(NULL);
+	ty1 = time(NULL);
+    tx2 = time(NULL);
+    ty2 = time(NULL);
+	struct ev_loop *loop = EV_DEFAULT;
+	ev_io_init(&io_watcher,io_cb,0,EV_READ);
+	ev_io_start(loop, &io_watcher);
+	ev_timer_init(&time_watcher,timer_cb,0,1);
+	ev_timer_start(loop, &time_watcher);
+	ev_run(loop, 0);
 }
