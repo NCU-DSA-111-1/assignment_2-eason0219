@@ -5,8 +5,6 @@
 #include<stdlib.h>
 #include<math.h>
 #include<unistd.h>
-#include<ev.h>
-#include<time.h>
 
 #define ROW 9
 #define COLUMN 9
@@ -19,13 +17,13 @@ struct match{
     struct match *next , *pre;
 };
 typedef struct match Match;
-Match *first,*current,*previous,*space;
-int i,j,count,flag=0;
-char tempX;
-int selectX,selectY,targetX,targetY;
-char temp;
-char chessboard[ROW][COLUMN];
-FILE *fptr;
+extern Match *first,*current,*previous,*space;
+extern int i,j,count,flag;
+extern char tempX;
+extern int selectX,selectY,targetX,targetY;
+extern char temp;
+extern char chessboard[ROW][COLUMN];
+extern FILE *fptr;
 extern char *optarg;
 extern int optind,opterr,optopt;
 
@@ -45,9 +43,5 @@ void regret_save();
 void roundmove();
 
 void timer();
-
-ev_timer time_watcher;
-ev_io io_watcher;
-time_t tx=0,ty=0,tx1, tx2, ty1, ty2;
 
 #endif

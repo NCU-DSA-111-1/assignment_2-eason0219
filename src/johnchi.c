@@ -1,81 +1,21 @@
-#include "johnchi.h"
+#include "../inc/johnchi.h"
+#include "../inc/timer.h"
 
+Match *first,*current,*previous,*space;
+int i,j,count,flag=0;
+char tempX;
+int selectX,selectY,targetX,targetY;
+char temp;
+char chessboard[ROW][COLUMN];
+FILE *fptr;
 
-void main(int argc, char *argv[]){
-	int ch;
-	int status=0;
-
-	while((ch=getopt(argc,argv,"ns:l:")) != -1){
-		switch(ch){
-			case 'n': // -n : new game
-				status=1;
-				break;
-			case 's': // -s [file name] : locaton of saving the game
-				fptr=fopen(optarg,"w+");
-				if(fptr==NULL){
-					printf("File cannot be opened ! ");
-					return;
-				}
-				break;
-			case 'l': // -l [file name] : location of loading the game
-				fptr=fopen(optarg,"r+");
-				if(fptr==NULL){
-					printf("File cannot be opened ! ");
-					return;
-				}
-				status=2;
-				break;
-			default:
-				printf("Not support the option ! \n");
-				return;
-		}
-	}
-	if(status==1){
-		count=0;
-		chessSetup();
-		while(count<RECORD){
-			if(winlose()==3 || winlose()==0){
-				timer();
-				chessinput();
-				while(flag==1 || flag==2 || flag==3){
-					timer();
-					chessinput();
-				}
-				count++;
-			}
-			else if(winlose()==1){ 
-				system("clear");
-				flag=-1;
-				chessprint();
-				printf("The winner is player Y ! \n");
-				printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
-				printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
-				break;
-			}
-			else if(winlose()==2){ 
-				system("clear");
-				flag=-1;
-				chessprint();
-				printf("The winner is player X ! \n");
-				printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
-				printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
-				break;	
-			}
-		}
-	}
-	else if(status==2){
-		system("clear");
-		chessSetup();
-		roundmove();
-	}
-	fclose(fptr);
-}
 
 //move to the next or previous  round 
 void roundmove(){
 	int x;
 	char ins;
 	count=0;
+	flag=-1;
 
 	for(x=0;!feof(fptr);x++){
 		current=(Match*) malloc(sizeof(Match));
@@ -93,6 +33,7 @@ void roundmove(){
 	current=first;
 	while(ins!='e'){
 		chessprint();
+		printf("Enter 'e' to exit\n");
 		printf("Enter 'f' to go next or 'b' to go back : ");
 		scanf("%c",&ins);
 		getchar();
@@ -122,7 +63,7 @@ void roundmove(){
 			}
 			break;
 		case 'e':
-			break;
+			return;
 		default:
 			printf("Not support the option ! \n");
 			sleep(S);
@@ -173,23 +114,10 @@ void regret_save(){
 		fflush(fptr);
 		printf("Save the game succesfully ! \n");
 		sleep(S);
+		getchar();
 		count--;
+		flag=0;
 		break;
-	// case '1':
-	// case '2':
-	// case '3':
-	// case '4':
-	// case '5':
-	// case '6':
-	// case '7':
-	// case '8':
-	// case '9':	
-	// 	break;
-	// default:
-	// 	printf("Not support the option ! \n");
-	// 	sleep(S);
-	// 	flag=0;
-	// 	break;
 	}
 }
 
@@ -486,6 +414,7 @@ void roundjudge(){
 
 //check the input
 void inputcheck(){
+	getchar();
 	if(chessboard[selectY][selectX] == 't'){
 		printf("There is no chess ! \n");
 		sleep(S);
@@ -500,7 +429,7 @@ void inputcheck(){
 		return;
 	}
 	else if(selectX<0 || selectX>8 || selectY<0 || selectY>8){
-		printf("Beyond the border of the chessboard ! \n");
+		printf("Beyond the border of the chessboard ! \n");	
 		sleep(S);
 		flag=2;
 	}
@@ -518,7 +447,7 @@ void chessinput(){
 		scanf("%c",&tempX);
 		regret_save();
 		selectX=tempX-48;
-		if(tempX=='0')	return;
+		if(tempX=='0' || tempX=='s' || tempX=='S')	return;
 		if(selectX/10==0){
 			scanf("%d",&selectY);
 			selectY=selectY-1;
@@ -656,7 +585,7 @@ void chessprint(){
 	}
 	if(count%2==0) printf("It's playerX's turn \n");
 	else if(count%2==1) printf("It's playerY's turn \n");
-	if(flag==0)	printf("Please enter the  coordinate of the chess: ");
+	if(flag==0)	printf("Please enter the coordinate of the chess: ");
 	else if(flag==1){
 		printf("The chess you select: %d %d\n",9-selectX,selectY+1);
 		printf("Please enter the  coordinate of the target: ");
@@ -782,50 +711,50 @@ void chessSetup(){
 
 
 
-static void io_cb(EV_P_ ev_io *w, int revents)
-{
-    if(count%2==0){
-        tx=tx+(tx2-tx1);
-        tx1=tx;
-    }
-    else if(count%2==1){
-        ty=ty+(ty2-ty1); 
-        ty1=ty;
-    }
-	ev_io_stop(EV_A_ w);
-	ev_timer_stop(loop, &time_watcher);
-	ev_break(loop, EVBREAK_ALL);
-}
-static void timer_cb(EV_P_ ev_timer *w, int revents)
-{
-	if(count%2==0){
-		tx2 = time(NULL);
-		system("clear");
-		printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
-		printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
-		fflush(stdout);
-	}
-	else if(count%2==1){
-		ty2 = time(NULL);
-		system("clear");
-		printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
-		printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
-		fflush(stdout);
-	}
-	chessprint();
-	fflush(stdout);
-}
+// static void io_cb(EV_P_ ev_io *w, int revents)
+// {
+//     if(count%2==0){
+//         tx=tx+(tx2-tx1);
+//         tx1=tx;
+//     }
+//     else if(count%2==1){
+//         ty=ty+(ty2-ty1); 
+//         ty1=ty;
+//     }
+// 	ev_io_stop(EV_A_ w);
+// 	ev_timer_stop(loop, &time_watcher);
+// 	ev_break(loop, EVBREAK_ALL);
+// }
+// static void timer_cb(EV_P_ ev_timer *w, int revents)
+// {
+// 	if(count%2==0){
+// 		tx2 = time(NULL);
+// 		system("clear");
+// 		printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
+// 		printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
+// 		fflush(stdout);
+// 	}
+// 	else if(count%2==1){
+// 		ty2 = time(NULL);
+// 		system("clear");
+// 		printf("PlayerX's time : %ld\n", tx+(tx2-tx1));
+// 		printf("PlayerY's time : %ld\n", ty+(ty2-ty1));
+// 		fflush(stdout);
+// 	}
+// 	chessprint();
+// 	fflush(stdout);
+// }
 
-void timer()
-{
-    tx1 = time(NULL);
-	ty1 = time(NULL);
-    tx2 = time(NULL);
-    ty2 = time(NULL);
-	struct ev_loop *loop = EV_DEFAULT;
-	ev_io_init(&io_watcher,io_cb,0,EV_READ);
-	ev_io_start(loop, &io_watcher);
-	ev_timer_init(&time_watcher,timer_cb,0,1);
-	ev_timer_start(loop, &time_watcher);
-	ev_run(loop, 0);
-}
+// void timer()
+// {
+//     tx1 = time(NULL);
+// 	ty1 = time(NULL);
+//     tx2 = time(NULL);
+//     ty2 = time(NULL);
+// 	struct ev_loop *loop = EV_DEFAULT;
+// 	ev_io_init(&io_watcher,io_cb,0,EV_READ);
+// 	ev_io_start(loop, &io_watcher);
+// 	ev_timer_init(&time_watcher,timer_cb,0,1);
+// 	ev_timer_start(loop, &time_watcher);
+// 	ev_run(loop, 0);
+// }
