@@ -31,8 +31,6 @@ void chessSetup();
 void chessprint();
 void chessinput();
 void inputcheck();
-void input_sl_again();
-void input_tg_again();
 void roundjudge();
 void chessmove();
 int moverule();
